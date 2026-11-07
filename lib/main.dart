@@ -142,6 +142,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                     _InputLabel(text: 'Bill Amount (\$)'),
                     const SizedBox(height: 8),
                     _AppTextField(
+                      fieldKey: const ValueKey('billField'),
                       controller: _billController,
                       placeholder: '25.50',
                       onChanged: (_) => _onInputChanged(),
@@ -161,6 +162,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                       const _InputLabel(text: 'Custom Tip %'),
                       const SizedBox(height: 8),
                       _AppTextField(
+                        fieldKey: const ValueKey('customTipField'),
                         controller: _customTipController,
                         placeholder: '12',
                         onChanged: (_) => _onInputChanged(),
@@ -170,6 +172,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                     const _InputLabel(text: 'Number of People'),
                     const SizedBox(height: 8),
                     _AppTextField(
+                      fieldKey: const ValueKey('peopleField'),
                       controller: _peopleController,
                       placeholder: '1',
                       onChanged: (_) => _onInputChanged(),
@@ -233,16 +236,20 @@ class _AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String placeholder;
   final ValueChanged<String> onChanged;
+  final Key? fieldKey;
 
   const _AppTextField({
+    super.key,
     required this.controller,
     required this.placeholder,
     required this.onChanged,
+    this.fieldKey,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      key: fieldKey,
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(
         decimal: true,

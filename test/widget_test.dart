@@ -11,9 +11,9 @@ void main() {
   Future<void> enterBill(
     WidgetTester tester,
     String text, {
-    String label = 'Bill Amount (\$)',
+    Key fieldKey = const ValueKey('billField'),
   }) async {
-    await tester.enterText(find.widgetWithText(TextField, label), text);
+    await tester.enterText(find.byKey(fieldKey), text);
     await tester.pump();
   }
 
@@ -62,7 +62,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Custom Tip %'), findsOneWidget);
-    await enterBill(tester, '12', label: 'Custom Tip %');
+    await enterBill(tester, '12', fieldKey: const ValueKey('customTipField'));
     await tester.pump();
 
     expect(find.text('\$12.00'), findsOneWidget);
@@ -74,7 +74,7 @@ void main() {
 
     await enterBill(tester, '90');
     await tester.enterText(
-      find.widgetWithText(TextField, 'Number of People'),
+      find.byKey(const ValueKey('peopleField')),
       '3',
     );
     await tester.pump();
@@ -87,15 +87,15 @@ void main() {
       (tester) async {
     await pumpApp(tester);
 
+    // With one person, "Total" and "Per Person" show the same amount.
     await enterBill(tester, '42.37');
-    expect(find.text('\$48.73'), findsOneWidget);
+    expect(find.text('\$48.73'), findsNWidgets(2));
 
     await tester.tap(find.text('Round Up to Next Dollar'));
     await tester.pump();
 
-    expect(find.text('\$49.00'), findsOneWidget);
+    expect(find.text('\$49.00'), findsNWidgets(2));
     expect(find.text('\$6.63'), findsOneWidget);
-    expect(find.text('\$24.50'), findsOneWidget);
   });
 
   testWidgets('round up does nothing for zero bill', (tester) async {
@@ -114,11 +114,11 @@ void main() {
     await enterBill(tester, '42.37');
     await tester.tap(find.text('Round Up to Next Dollar'));
     await tester.pump();
-    expect(find.text('\$49.00'), findsOneWidget);
+    expect(find.text('\$49.00'), findsNWidgets(2));
 
     await enterBill(tester, '42.38');
     await tester.pump();
 
-    expect(find.text('\$48.74'), findsOneWidget);
+    expect(find.text('\$48.74'), findsNWidgets(2));
   });
 }

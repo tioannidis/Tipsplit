@@ -2,6 +2,10 @@
 
 **Calculate tips and split bills effortlessly**
 
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="Tipsplit screenshot" width="300">
+</p>
+
 Tipsplit is the ultimate tip calculator that makes dining out stress-free. Whether you're at a restaurant, bar, or café, calculate the perfect tip and split the bill among friends in seconds.
 
 ## Key Features

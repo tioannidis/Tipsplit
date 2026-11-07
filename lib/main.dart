@@ -1,23 +1,17 @@
-// Tipsplit - a simple tip calculator with split and round-up support.
-// Copyright (C) 2025  Tipsplit contributors
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'calculator.dart';
+
+const _kGradientStart = Color(0xFF667EEA);
+const _kGradientEnd = Color(0xFF764BA2);
+const _kCardBackground = Color(0xFFFFFFFF);
+const _kTitleColor = Color(0xFF333333);
+const _kLabelColor = Color(0xFF666666);
+const _kBorderColor = Color(0xFFE1E5E9);
+const _kInputBackground = Color(0xFFF8F9FA);
+const _kRoundButtonColor = Color(0xFF28A745);
+
+const _kQuickTips = [10.0, 15.0, 18.0, 20.0, 25.0];
 
 void main() {
   runApp(const TipsplitApp());
@@ -29,12 +23,12 @@ class TipsplitApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tipsplit',
+      title: 'Tipsplit - Tip Calculator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF667EEA)),
-        scaffoldBackgroundColor: const Color(0xFF764BA2),
+        fontFamily: 'Roboto',
+        scaffoldBackgroundColor: _kGradientStart,
       ),
       home: const TipsplitHomePage(),
     );
@@ -49,32 +43,31 @@ class TipsplitHomePage extends StatefulWidget {
 }
 
 class _TipsplitHomePageState extends State<TipsplitHomePage> {
-  static const _presetTips = [10, 15, 18, 20, 25];
-
+  final _calculator = const TipCalculator();
   final _billController = TextEditingController();
   final _customTipController = TextEditingController();
   final _peopleController = TextEditingController(text: '1');
 
-  int _selectedTip = 15;
+  double _currentTipPercent = 15.0;
   bool _isCustomTip = false;
-  bool _roundedUp = false;
+  bool _isRounded = false;
 
-  double get _bill => double.tryParse(_billController.text) ?? 0.0;
-  int get _people {
-    final parsed = int.tryParse(_peopleController.text) ?? 1;
-    return parsed < 1 ? 1 : parsed;
-  }
+  double get _billAmount => _calculator.parseAmount(_billController.text);
+
+  int get _people => _calculator.parsePeople(_peopleController.text);
 
   double get _tipPercent {
-    if (!_isCustomTip) return _selectedTip.toDouble();
-    return double.tryParse(_customTipController.text) ?? 0.0;
+    if (_isCustomTip) {
+      return _calculator.parseAmount(_customTipController.text);
+    }
+    return _currentTipPercent;
   }
 
-  TipResult get _result => calculateTip(
-        bill: _bill,
+  BillResult get _result => _calculator.calculate(
+        billAmount: _billAmount,
         tipPercent: _tipPercent,
         people: _people,
-        roundUp: _roundedUp,
+        roundUp: _isRounded,
       );
 
   @override
@@ -85,117 +78,109 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
     super.dispose();
   }
 
-  void _recalculate({bool roundUp = false}) {
-    setState(() => _roundedUp = roundUp);
+  void _onInputChanged() {
+    setState(() => _isRounded = false);
+  }
+
+  void _selectTip(double percent) {
+    setState(() {
+      _currentTipPercent = percent;
+      _isCustomTip = false;
+      _isRounded = false;
+    });
+  }
+
+  void _selectCustomTip() {
+    setState(() {
+      _isCustomTip = true;
+      _isRounded = false;
+    });
+  }
+
+  void _roundUp() {
+    if (_billAmount == 0) {
+      return;
+    }
+    setState(() => _isRounded = true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
-
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  blurRadius: 40,
-                  offset: const Offset(0, 20),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Tipsplit',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _billController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: 'Bill Amount',
-                    prefixText: '\$ ',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => _recalculate(),
-                ),
-                const SizedBox(height: 20),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final tip in _presetTips)
-                      ChoiceChip(
-                        label: Text('$tip%'),
-                        selected: !_isCustomTip && _selectedTip == tip,
-                        onSelected: (_) => setState(() {
-                          _isCustomTip = false;
-                          _selectedTip = tip;
-                          _roundedUp = false;
-                        }),
-                      ),
-                    ChoiceChip(
-                      label: const Text('Custom'),
-                      selected: _isCustomTip,
-                      onSelected: (_) => setState(() {
-                        _isCustomTip = true;
-                        _roundedUp = false;
-                      }),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [_kGradientStart, _kGradientEnd],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 400),
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: _kCardBackground,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 40,
+                      offset: const Offset(0, 20),
                     ),
                   ],
                 ),
-                if (_isCustomTip) ...[
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _customTipController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Custom Tip %',
-                      suffixText: '%',
-                      border: OutlineInputBorder(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const _Header(),
+                    const SizedBox(height: 30),
+                    _InputLabel(text: 'Bill Amount (\$)'),
+                    const SizedBox(height: 8),
+                    _AppTextField(
+                      controller: _billController,
+                      placeholder: '25.50',
+                      onChanged: (_) => _onInputChanged(),
                     ),
-                    onChanged: (_) => _recalculate(),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _peopleController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Number of People',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => _recalculate(),
+                    const SizedBox(height: 25),
+                    const _InputLabel(text: 'Tip %'),
+                    const SizedBox(height: 8),
+                    _TipGrid(
+                      quickTips: _kQuickTips,
+                      selectedPercent: _isCustomTip ? null : _currentTipPercent,
+                      isCustomSelected: _isCustomTip,
+                      onTipSelected: _selectTip,
+                      onCustomSelected: _selectCustomTip,
+                    ),
+                    if (_isCustomTip) ...[
+                      const SizedBox(height: 25),
+                      const _InputLabel(text: 'Custom Tip %'),
+                      const SizedBox(height: 8),
+                      _AppTextField(
+                        controller: _customTipController,
+                        placeholder: '12',
+                        onChanged: (_) => _onInputChanged(),
+                      ),
+                    ],
+                    const SizedBox(height: 25),
+                    const _InputLabel(text: 'Number of People'),
+                    const SizedBox(height: 8),
+                    _AppTextField(
+                      controller: _peopleController,
+                      placeholder: '1',
+                      onChanged: (_) => _onInputChanged(),
+                    ),
+                    const SizedBox(height: 15),
+                    _RoundUpButton(onPressed: _roundUp),
+                    const SizedBox(height: 20),
+                    _ResultsPanel(result: _result),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                FilledButton(
-                  onPressed:
-                      _bill > 0 ? () => _recalculate(roundUp: true) : null,
-                  child: const Text('Round Up to Next Dollar'),
-                ),
-                const SizedBox(height: 24),
-                _ResultCard(
-                  tipAmount: result.tipAmount,
-                  totalAmount: result.totalAmount,
-                  perPerson: result.perPerson,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -204,36 +189,226 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
   }
 }
 
-class _ResultCard extends StatelessWidget {
-  const _ResultCard({
-    required this.tipAmount,
-    required this.totalAmount,
-    required this.perPerson,
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('🍽️', style: TextStyle(fontSize: 48)),
+        const SizedBox(height: 10),
+        Text(
+          'Tipsplit',
+          style: TextStyle(
+            color: _kTitleColor,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _InputLabel extends StatelessWidget {
+  final String text;
+
+  const _InputLabel({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: _kLabelColor,
+        fontWeight: FontWeight.w500,
+        fontSize: 15,
+      ),
+    );
+  }
+}
+
+class _AppTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String placeholder;
+  final ValueChanged<String> onChanged;
+
+  const _AppTextField({
+    required this.controller,
+    required this.placeholder,
+    required this.onChanged,
   });
 
-  final double tipAmount;
-  final double totalAmount;
-  final double perPerson;
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(
+        decimal: true,
+        signed: false,
+      ),
+      onChanged: onChanged,
+      style: const TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        hintText: placeholder,
+        filled: true,
+        fillColor: _kCardBackground,
+        contentPadding: const EdgeInsets.all(15),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: _kBorderColor, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: _kGradientStart, width: 2),
+        ),
+      ),
+    );
+  }
+}
 
-  static String _format(double value) =>
-      NumberFormat.currency(symbol: '\$').format(value);
+class _TipGrid extends StatelessWidget {
+  final List<double> quickTips;
+  final double? selectedPercent;
+  final bool isCustomSelected;
+  final ValueChanged<double> onTipSelected;
+  final VoidCallback onCustomSelected;
+
+  const _TipGrid({
+    required this.quickTips,
+    required this.selectedPercent,
+    required this.isCustomSelected,
+    required this.onTipSelected,
+    required this.onCustomSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth < 300 ? 2 : 3;
+        final itemCount = quickTips.length + 1;
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(itemCount, (index) {
+            final width =
+                (constraints.maxWidth - (crossAxisCount - 1) * 10) /
+                    crossAxisCount;
+            if (index < quickTips.length) {
+              final tip = quickTips[index];
+              return _TipButton(
+                label: '${tip.toStringAsFixed(0)}%',
+                width: width,
+                selected: selectedPercent == tip,
+                onPressed: () => onTipSelected(tip),
+              );
+            }
+            return _TipButton(
+              label: 'Custom',
+              width: width,
+              selected: isCustomSelected,
+              onPressed: onCustomSelected,
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _TipButton extends StatelessWidget {
+  final String label;
+  final double width;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  const _TipButton({
+    required this.label,
+    required this.width,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: selected ? _kGradientStart : _kCardBackground,
+          foregroundColor: selected ? Colors.white : _kTitleColor,
+          side: BorderSide(
+            color: selected ? _kGradientStart : _kBorderColor,
+            width: 2,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          textStyle: const TextStyle(fontSize: 16),
+        ),
+        child: Text(label),
+      ),
+    );
+  }
+}
+
+class _RoundUpButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _RoundUpButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _kRoundButtonColor,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        textStyle: const TextStyle(fontSize: 16),
+      ),
+      child: const Text('Round Up to Next Dollar'),
+    );
+  }
+}
+
+class _ResultsPanel extends StatelessWidget {
+  final BillResult result;
+
+  const _ResultsPanel({required this.result});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: _kInputBackground,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         children: [
-          _ResultRow(label: 'Tip Amount', value: _format(tipAmount)),
-          _ResultRow(label: 'Total Amount', value: _format(totalAmount)),
+          _ResultRow(label: 'Tip Amount:', value: result.tipAmount),
+          const SizedBox(height: 15),
+          _ResultRow(label: 'Total Amount:', value: result.total),
+          const SizedBox(height: 15),
+          Divider(
+            height: 2,
+            thickness: 2,
+            color: _kBorderColor,
+          ),
+          const SizedBox(height: 15),
           _ResultRow(
-              label: 'Per Person',
-              value: _format(perPerson),
-              emphasized: true),
+            label: 'Per Person:',
+            value: result.perPerson,
+            emphasized: true,
+          ),
         ],
       ),
     );
@@ -241,42 +416,39 @@ class _ResultCard extends StatelessWidget {
 }
 
 class _ResultRow extends StatelessWidget {
+  final String label;
+  final double value;
+  final bool emphasized;
+
   const _ResultRow({
     required this.label,
     required this.value,
     this.emphasized = false,
   });
 
-  final String label;
-  final String value;
-  final bool emphasized;
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
             label,
-            style: emphasized
-                ? theme.textTheme.titleMedium
-                : theme.textTheme.bodyLarge,
-          ),
-          Text(
-            value,
-            style: (emphasized
-                    ? theme.textTheme.titleMedium
-                    : theme.textTheme.bodyLarge)
-                ?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.primary,
+            style: TextStyle(
+              fontSize: emphasized ? 18 : 16,
+              fontWeight: emphasized ? FontWeight.w600 : FontWeight.w400,
+              color: _kTitleColor,
             ),
           ),
-        ],
-      ),
+        ),
+        Text(
+          '\$${value.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: emphasized ? 18 : 16,
+            fontWeight: FontWeight.w600,
+            color: _kGradientStart,
+          ),
+        ),
+      ],
     );
   }
 }

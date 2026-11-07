@@ -1,57 +1,62 @@
-// Tipsplit - a simple tip calculator with split and round-up support.
-// Copyright (C) 2025  Tipsplit contributors
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import 'dart:math';
 
-class TipResult {
-  const TipResult({
+class BillResult {
+  final double tipAmount;
+  final double total;
+  final double perPerson;
+
+  const BillResult({
     required this.tipAmount,
-    required this.totalAmount,
+    required this.total,
     required this.perPerson,
   });
-
-  final double tipAmount;
-  final double totalAmount;
-  final double perPerson;
 }
 
-TipResult calculateTip({
-  required double bill,
-  required double tipPercent,
-  required int people,
-  bool roundUp = false,
-}) {
-  final safeBill = bill < 0 ? 0.0 : bill;
-  final safeTipPercent = tipPercent < 0 ? 0.0 : tipPercent;
-  final safePeople = people < 1 ? 1 : people;
+class TipCalculator {
+  const TipCalculator();
 
-  final tipAmount = (safeBill * safeTipPercent) / 100;
-  final totalAmount = safeBill + tipAmount;
-
-  if (roundUp && safeBill > 0) {
-    final roundedTotal = totalAmount.ceilToDouble();
-    final roundedTip = roundedTotal - safeBill;
-    return TipResult(
-      tipAmount: roundedTip,
-      totalAmount: roundedTotal,
-      perPerson: roundedTotal / safePeople,
-    );
+  double parseAmount(String input) {
+    final cleaned = input.replaceAll(',', '.').trim();
+    if (cleaned.isEmpty) {
+      return 0.0;
+    }
+    final value = double.tryParse(cleaned);
+    if (value == null || value < 0) {
+      return 0.0;
+    }
+    return value;
   }
 
-  return TipResult(
-    tipAmount: tipAmount,
-    totalAmount: totalAmount,
-    perPerson: totalAmount / safePeople,
-  );
+  int parsePeople(String input) {
+    final value = int.tryParse(input.trim());
+    if (value == null || value < 1) {
+      return 1;
+    }
+    return value;
+  }
+
+  BillResult calculate({
+    required double billAmount,
+    required double tipPercent,
+    required int people,
+    required bool roundUp,
+  }) {
+    final bill = max(0.0, billAmount);
+    final percent = max(0.0, tipPercent);
+    final split = max(1, people);
+
+    var tip = bill * percent / 100;
+    var total = bill + tip;
+
+    if (roundUp && bill > 0) {
+      total = total.ceilToDouble();
+      tip = total - bill;
+    }
+
+    return BillResult(
+      tipAmount: tip,
+      total: total,
+      perPerson: total / split,
+    );
+  }
 }

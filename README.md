@@ -1,46 +1,44 @@
 # Tipsplit
 
-A simple, free and open-source tip calculator for Android.
+**Calculate tips and split bills effortlessly**
 
-Enter the bill amount, pick a tip percentage (10/15/18/20/25% or a custom
-value), choose how many people split the bill, and optionally round the
-total up to the next whole dollar. Tipsplit shows the tip amount, the
-total, and the amount per person.
+Tipsplit is the ultimate tip calculator that makes dining out stress-free. Whether you're at a restaurant, bar, or café, calculate the perfect tip and split the bill among friends in seconds.
 
-## Features
+## Key Features
 
-- Preset tip percentages (10%, 15%, 18%, 20%, 25%) plus a custom tip value
-- Split the bill across any number of people
-- "Round Up to Next Dollar" mode
-- No ads, no tracking, no network access, no special permissions
+- **Instant Calculations** – Results update automatically as you type
+- **Smart Tip Options** – Quick buttons for 10%, 15%, 18%, 20%, 25% or set your own custom percentage
+- **Bill Splitting** – Easily divide the total among any number of people
+- **Round Up Feature** – One-tap rounding to the nearest dollar for convenience
+- **Clean Interface** – Large, easy-to-read numbers and intuitive design
+- **Works Offline** – No internet connection required
+- **Lightning Fast** – No loading times or "calculate" buttons needed
+
+## How it works
+
+1. Enter your bill amount
+2. Select or customize your tip percentage
+3. Add number of people (if splitting)
+4. See instant results for tip amount, total, and cost per person
 
 ## Building
 
-Tipsplit is a [Flutter](https://flutter.dev) app.
+This is a Flutter app targeting Android.
 
 ```sh
 flutter pub get
-flutter create --platforms=android --org io.github.tioannidis .
 flutter test
 flutter build apk --release
 ```
 
-The first command fetches dependencies, the second generates the Android
-platform folder (not checked in, see `.gitignore`), the third runs the
-unit tests, and the last produces the release APK.
+Signing for release builds is configured via standard Android signing; debug
+signing is used as a placeholder in `android/app/build.gradle`.
 
-## F-Droid
+## License
 
-Tipsplit follows the [F-Droid Inclusion Policy](https://f-droid.org/docs/Inclusion_Policy/):
+Copyright (C) Tipsplit contributors.
 
-- Licensed under [GPL-3.0](LICENSE)
-- Only free-software dependencies (Flutter SDK, `intl`)
-- No proprietary binaries, trackers, or non-free network services
-- Buildable from source with a reproducible release build
-
-App store metadata lives in [`fastlane/metadata/android/`](fastlane/metadata/android/).
-
-## Contributing
-
-Contributions are welcome. By contributing you agree that your
-contributions are licensed under the GPL-3.0 license of this project.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See [LICENSE](LICENSE).

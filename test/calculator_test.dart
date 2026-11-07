@@ -27,6 +27,24 @@ void main() {
     });
   });
 
+  group('parsePeople', () {
+    test('parses valid counts', () {
+      expect(calculator.parsePeople('3'), 3);
+    });
+
+    test('falls back to one for empty input', () {
+      expect(calculator.parsePeople(''), 1);
+    });
+
+    test('falls back to one for invalid input', () {
+      expect(calculator.parsePeople('abc'), 1);
+    });
+
+    test('falls back to one for zero', () {
+      expect(calculator.parsePeople('0'), 1);
+    });
+  });
+
   group('calculate', () {
     test('computes tip and total', () {
       final result = calculator.calculate(
@@ -53,6 +71,18 @@ void main() {
       expect(result.perPerson, closeTo(33, epsilon));
     });
 
+    test('uses zero tip for custom tip without input', () {
+      final result = calculator.calculate(
+        billAmount: 50,
+        tipPercent: 0,
+        people: 1,
+        roundUp: false,
+      );
+
+      expect(result.tipAmount, 0.0);
+      expect(result.total, closeTo(50, epsilon));
+    });
+
     test('rounds total up when enabled', () {
       final result = calculator.calculate(
         billAmount: 42.37,
@@ -66,28 +96,17 @@ void main() {
       expect(result.perPerson, closeTo(24.50, epsilon));
     });
 
-    test('handles zero bill', () {
+    test('ignores round up for zero bill', () {
       final result = calculator.calculate(
         billAmount: 0,
         tipPercent: 20,
         people: 4,
-        roundUp: false,
+        roundUp: true,
       );
 
       expect(result.tipAmount, 0.0);
       expect(result.total, 0.0);
       expect(result.perPerson, 0.0);
-    });
-
-    test('treats fewer than one person as one person', () {
-      final result = calculator.calculate(
-        billAmount: 50,
-        tipPercent: 20,
-        people: 0,
-        roundUp: false,
-      );
-
-      expect(result.perPerson, closeTo(60, epsilon));
     });
   });
 }

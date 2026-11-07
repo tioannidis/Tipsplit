@@ -27,6 +27,14 @@ class TipCalculator {
     return value;
   }
 
+  int parsePeople(String input) {
+    final value = int.tryParse(input.trim());
+    if (value == null || value < 1) {
+      return 1;
+    }
+    return value;
+  }
+
   BillResult calculate({
     required double billAmount,
     required double tipPercent,
@@ -40,7 +48,7 @@ class TipCalculator {
     var tip = bill * percent / 100;
     var total = bill + tip;
 
-    if (roundUp) {
+    if (roundUp && bill > 0) {
       total = total.ceilToDouble();
       tip = total - bill;
     }

@@ -1,0 +1,10 @@
+Tipsplit is a simple, free and open-source tip calculator.
+
+Enter the bill amount, pick a tip percentage (10, 15, 18, 20 or 25
+percent, or a custom value), choose how many people split the bill, and
+optionally round the total up to the next whole dollar. Tipsplit shows
+the tip amount, the total, and the amount per person.
+
+The app contains no ads, performs no tracking, requires no network
+access and asks for no permissions. It is licensed under the GNU General
+Public License v3.

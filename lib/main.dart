@@ -20,13 +20,16 @@ void main() {
 }
 
 class TipsplitApp extends StatelessWidget {
-  const TipsplitApp({super.key});
+  const TipsplitApp({super.key, this.locale});
+
+  final Locale? locale;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
+      locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

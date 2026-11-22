@@ -1,0 +1,47 @@
+{
+  "@@locale": "en",
+  "appTitle": "Tipsplit - Tip Calculator",
+  "@appTitle": {
+    "description": "App title used for MaterialApp and system task switchers"
+  },
+  "appName": "Tipsplit",
+  "@appName": {
+    "description": "Short brand name shown in the app header"
+  },
+  "billAmountLabel": "Bill Amount ($)",
+  "@billAmountLabel": {
+    "description": "Label for the bill amount input field"
+  },
+  "tipPercentLabel": "Tip %",
+  "@tipPercentLabel": {
+    "description": "Label for the tip percentage section"
+  },
+  "customTipLabel": "Custom Tip %",
+  "@customTipLabel": {
+    "description": "Label for the custom tip percentage input field"
+  },
+  "customButton": "Custom",
+  "@customButton": {
+    "description": "Button label to select a custom tip percentage"
+  },
+  "numberOfPeopleLabel": "Number of People",
+  "@numberOfPeopleLabel": {
+    "description": "Label for the number of people input field"
+  },
+  "roundUpButton": "Round Up to Next Dollar",
+  "@roundUpButton": {
+    "description": "Button label for rounding the total up"
+  },
+  "tipAmountLabel": "Tip Amount:",
+  "@tipAmountLabel": {
+    "description": "Label for the calculated tip amount result"
+  },
+  "totalAmountLabel": "Total Amount:",
+  "@totalAmountLabel": {
+    "description": "Label for the calculated total amount result"
+  },
+  "perPersonLabel": "Per Person:",
+  "@perPersonLabel": {
+    "description": "Label for the calculated amount per person result"
+  }
+}

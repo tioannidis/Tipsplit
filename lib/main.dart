@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'calculator.dart';
+import 'l10n/app_localizations.dart';
 
 const _kGradientStart = Color(0xFF667EEA);
 const _kGradientEnd = Color(0xFF764BA2);
@@ -18,13 +20,23 @@ void main() {
 }
 
 class TipsplitApp extends StatelessWidget {
-  const TipsplitApp({super.key});
+  const TipsplitApp({super.key, this.locale});
+
+  final Locale? locale;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tipsplit - Tip Calculator',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
+      locale: locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: 'Roboto',
@@ -139,7 +151,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                   children: [
                     const _Header(),
                     const SizedBox(height: 30),
-                    _InputLabel(text: 'Bill Amount (\$)'),
+                    _InputLabel(text: AppLocalizations.of(context)!.billAmountLabel),
                     const SizedBox(height: 8),
                     _AppTextField(
                       fieldKey: const ValueKey('billField'),
@@ -148,7 +160,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                       onChanged: (_) => _onInputChanged(),
                     ),
                     const SizedBox(height: 25),
-                    const _InputLabel(text: 'Tip %'),
+                    _InputLabel(text: AppLocalizations.of(context)!.tipPercentLabel),
                     const SizedBox(height: 8),
                     _TipGrid(
                       quickTips: _kQuickTips,
@@ -159,7 +171,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                     ),
                     if (_isCustomTip) ...[
                       const SizedBox(height: 25),
-                      const _InputLabel(text: 'Custom Tip %'),
+                      _InputLabel(text: AppLocalizations.of(context)!.customTipLabel),
                       const SizedBox(height: 8),
                       _AppTextField(
                         fieldKey: const ValueKey('customTipField'),
@@ -169,7 +181,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                       ),
                     ],
                     const SizedBox(height: 25),
-                    const _InputLabel(text: 'Number of People'),
+                    _InputLabel(text: AppLocalizations.of(context)!.numberOfPeopleLabel),
                     const SizedBox(height: 8),
                     _AppTextField(
                       fieldKey: const ValueKey('peopleField'),
@@ -202,7 +214,7 @@ class _Header extends StatelessWidget {
         const Text('🍽️', style: TextStyle(fontSize: 48)),
         const SizedBox(height: 10),
         Text(
-          'Tipsplit',
+          AppLocalizations.of(context)!.appName,
           style: TextStyle(
             color: _kTitleColor,
             fontSize: 24,
@@ -313,7 +325,7 @@ class _TipGrid extends StatelessWidget {
               );
             }
             return _TipButton(
-              label: 'Custom',
+              label: AppLocalizations.of(context)!.customButton,
               width: width,
               selected: isCustomSelected,
               onPressed: onCustomSelected,
@@ -381,7 +393,7 @@ class _RoundUpButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15),
         textStyle: const TextStyle(fontSize: 16),
       ),
-      child: const Text('Round Up to Next Dollar'),
+      child: Text(AppLocalizations.of(context)!.roundUpButton),
     );
   }
 }
@@ -401,9 +413,9 @@ class _ResultsPanel extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _ResultRow(label: 'Tip Amount:', value: result.tipAmount),
+          _ResultRow(label: AppLocalizations.of(context)!.tipAmountLabel, value: result.tipAmount),
           const SizedBox(height: 15),
-          _ResultRow(label: 'Total Amount:', value: result.total),
+          _ResultRow(label: AppLocalizations.of(context)!.totalAmountLabel, value: result.total),
           const SizedBox(height: 15),
           Divider(
             height: 2,
@@ -412,7 +424,7 @@ class _ResultsPanel extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           _ResultRow(
-            label: 'Per Person:',
+            label: AppLocalizations.of(context)!.perPersonLabel,
             value: result.perPerson,
             emphasized: true,
           ),

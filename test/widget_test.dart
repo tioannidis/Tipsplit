@@ -32,6 +32,22 @@ void main() {
     expect(find.text('Per Person:'), findsOneWidget);
   });
 
+  testWidgets('renders German labels when locale is de', (tester) async {
+    await tester.pumpWidget(const TipsplitApp(locale: Locale('de')));
+    await tester.pump();
+
+    expect(find.text('🍽️'), findsOneWidget);
+    expect(find.text('Tipsplit'), findsOneWidget);
+    expect(find.text('Rechnungsbetrag (\$)'), findsOneWidget);
+    expect(find.text('Trinkgeld %'), findsOneWidget);
+    expect(find.text('Individuell'), findsOneWidget);
+    expect(find.text('Anzahl Personen'), findsOneWidget);
+    expect(find.text('Auf nächsten Dollar aufrunden'), findsOneWidget);
+    expect(find.text('Trinkgeld:'), findsOneWidget);
+    expect(find.text('Gesamt:'), findsOneWidget);
+    expect(find.text('Pro Person:'), findsOneWidget);
+  });
+
   testWidgets('defaults to 15% tip and updates as bill is typed',
       (tester) async {
     await pumpApp(tester);

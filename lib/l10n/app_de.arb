@@ -1,0 +1,47 @@
+{
+  "@@locale": "de",
+  "appTitle": "Tipsplit - Trinkgeldrechner",
+  "@appTitle": {
+    "description": "App title used for MaterialApp and system task switchers"
+  },
+  "appName": "Tipsplit",
+  "@appName": {
+    "description": "Short brand name shown in the app header"
+  },
+  "billAmountLabel": "Rechnungsbetrag ($)",
+  "@billAmountLabel": {
+    "description": "Label for the bill amount input field"
+  },
+  "tipPercentLabel": "Trinkgeld %",
+  "@tipPercentLabel": {
+    "description": "Label for the tip percentage section"
+  },
+  "customTipLabel": "Individuelles Trinkgeld %",
+  "@customTipLabel": {
+    "description": "Label for the custom tip percentage input field"
+  },
+  "customButton": "Individuell",
+  "@customButton": {
+    "description": "Button label to select a custom tip percentage"
+  },
+  "numberOfPeopleLabel": "Anzahl Personen",
+  "@numberOfPeopleLabel": {
+    "description": "Label for the number of people input field"
+  },
+  "roundUpButton": "Auf nächsten Dollar aufrunden",
+  "@roundUpButton": {
+    "description": "Button label for rounding the total up"
+  },
+  "tipAmountLabel": "Trinkgeld:",
+  "@tipAmountLabel": {
+    "description": "Label for the calculated tip amount result"
+  },
+  "totalAmountLabel": "Gesamt:",
+  "@totalAmountLabel": {
+    "description": "Label for the calculated total amount result"
+  },
+  "perPersonLabel": "Pro Person:",
+  "@perPersonLabel": {
+    "description": "Label for the calculated amount per person result"
+  }
+}

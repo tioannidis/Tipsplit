@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'calculator.dart';
+import 'settings.dart';
 import 'l10n/app_localizations.dart';
 
 const _kGradientStart = Color(0xFF667EEA);
@@ -19,17 +20,44 @@ void main() {
   runApp(const TipsplitApp());
 }
 
-class TipsplitApp extends StatelessWidget {
+class TipsplitApp extends StatefulWidget {
   const TipsplitApp({super.key, this.locale});
 
   final Locale? locale;
+
+  @override
+  State<TipsplitApp> createState() => _TipsplitAppState();
+}
+
+class _TipsplitAppState extends State<TipsplitApp> {
+  final _settings = Settings();
+
+  @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_onSettingsChanged);
+    _settings.load();
+  }
+
+  void _onSettingsChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _settings.removeListener(_onSettingsChanged);
+    _settings.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
-      locale: locale,
+      locale: widget.locale ?? _settings.resolvedLocale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -42,13 +70,18 @@ class TipsplitApp extends StatelessWidget {
         fontFamily: 'Roboto',
         scaffoldBackgroundColor: _kGradientStart,
       ),
-      home: const TipsplitHomePage(),
+      home: TipsplitHomePage(settings: _settings),
     );
   }
 }
 
 class TipsplitHomePage extends StatefulWidget {
-  const TipsplitHomePage({super.key});
+  const TipsplitHomePage({
+    super.key,
+    required this.settings,
+  });
+
+  final Settings settings;
 
   @override
   State<TipsplitHomePage> createState() => _TipsplitHomePageState();
@@ -63,6 +96,33 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
   double _currentTipPercent = 15.0;
   bool _isCustomTip = false;
   bool _isRounded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTipPercent = widget.settings.defaultTipPercent;
+    widget.settings.addListener(_onSettingsChanged);
+  }
+
+  @override
+  void didUpdateWidget(TipsplitHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.settings != oldWidget.settings) {
+      oldWidget.settings.removeListener(_onSettingsChanged);
+      widget.settings.addListener(_onSettingsChanged);
+    }
+    _onSettingsChanged();
+  }
+
+  void _onSettingsChanged() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _currentTipPercent = widget.settings.defaultTipPercent;
+      _isCustomTip = false;
+    });
+  }
 
   double get _billAmount => _calculator.parseAmount(_billController.text);
 
@@ -87,6 +147,7 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
     _billController.dispose();
     _customTipController.dispose();
     _peopleController.dispose();
+    widget.settings.removeListener(_onSettingsChanged);
     super.dispose();
   }
 
@@ -149,9 +210,38 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const _Header(),
+                    Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        const _Header(),
+                        Positioned(
+                          top: -10,
+                          right: -14,
+                          child: IconButton(
+                            icon: const Icon(Icons.settings),
+                            color: _kLabelColor,
+                            padding: const EdgeInsets.all(6),
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            tooltip:
+                                AppLocalizations.of(context)!.settingsTitle,
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) =>
+                                      SettingsPage(settings: widget.settings),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 30),
-                    _InputLabel(text: AppLocalizations.of(context)!.billAmountLabel),
+                    _InputLabel(
+                        text: AppLocalizations.of(context)!.billAmountLabel),
                     const SizedBox(height: 8),
                     _AppTextField(
                       fieldKey: const ValueKey('billField'),
@@ -160,7 +250,8 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                       onChanged: (_) => _onInputChanged(),
                     ),
                     const SizedBox(height: 25),
-                    _InputLabel(text: AppLocalizations.of(context)!.tipPercentLabel),
+                    _InputLabel(
+                        text: AppLocalizations.of(context)!.tipPercentLabel),
                     const SizedBox(height: 8),
                     _TipGrid(
                       quickTips: _kQuickTips,
@@ -171,7 +262,8 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                     ),
                     if (_isCustomTip) ...[
                       const SizedBox(height: 25),
-                      _InputLabel(text: AppLocalizations.of(context)!.customTipLabel),
+                      _InputLabel(
+                          text: AppLocalizations.of(context)!.customTipLabel),
                       const SizedBox(height: 8),
                       _AppTextField(
                         fieldKey: const ValueKey('customTipField'),
@@ -181,7 +273,9 @@ class _TipsplitHomePageState extends State<TipsplitHomePage> {
                       ),
                     ],
                     const SizedBox(height: 25),
-                    _InputLabel(text: AppLocalizations.of(context)!.numberOfPeopleLabel),
+                    _InputLabel(
+                        text:
+                            AppLocalizations.of(context)!.numberOfPeopleLabel),
                     const SizedBox(height: 8),
                     _AppTextField(
                       fieldKey: const ValueKey('peopleField'),
@@ -312,9 +406,8 @@ class _TipGrid extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: List.generate(itemCount, (index) {
-            final width =
-                (constraints.maxWidth - (crossAxisCount - 1) * 10) /
-                    crossAxisCount;
+            final width = (constraints.maxWidth - (crossAxisCount - 1) * 10) /
+                crossAxisCount;
             if (index < quickTips.length) {
               final tip = quickTips[index];
               return _TipButton(
@@ -413,9 +506,13 @@ class _ResultsPanel extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _ResultRow(label: AppLocalizations.of(context)!.tipAmountLabel, value: result.tipAmount),
+          _ResultRow(
+              label: AppLocalizations.of(context)!.tipAmountLabel,
+              value: result.tipAmount),
           const SizedBox(height: 15),
-          _ResultRow(label: AppLocalizations.of(context)!.totalAmountLabel, value: result.total),
+          _ResultRow(
+              label: AppLocalizations.of(context)!.totalAmountLabel,
+              value: result.total),
           const SizedBox(height: 15),
           Divider(
             height: 2,
@@ -468,6 +565,162 @@ class _ResultRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  final Settings settings;
+
+  const SettingsPage({super.key, required this.settings});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: _kGradientStart,
+      appBar: AppBar(
+        title: Text(l10n.settingsTitle),
+        backgroundColor: _kGradientStart,
+        foregroundColor: Colors.white,
+      ),
+      body: ListenableBuilder(
+        listenable: settings,
+        builder: (context, _) {
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _SettingTile(
+                icon: Icons.language,
+                title: l10n.languageLabel,
+                subtitle: l10n.languageSubtitle,
+                child: DropdownButton<AppLanguage>(
+                  value: settings.language,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (language) {
+                    if (language != null) {
+                      settings.setLanguage(language);
+                    }
+                  },
+                  items: [
+                    for (final language in AppLanguage.values)
+                      DropdownMenuItem(
+                        value: language,
+                        child: Text(
+                          switch (language) {
+                            AppLanguage.system => l10n.languageSystem,
+                            AppLanguage.english => l10n.languageEnglish,
+                            AppLanguage.german => l10n.languageGerman,
+                          },
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: _kGradientStart,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              _SettingTile(
+                icon: Icons.percent,
+                title: l10n.defaultTipLabel,
+                subtitle: l10n.defaultTipSubtitle,
+                child: DropdownButton<double>(
+                  value: settings.defaultTipPercent,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (percent) {
+                    if (percent != null) {
+                      settings.setDefaultTipPercent(percent);
+                    }
+                  },
+                  items: [
+                    for (final percent in _kQuickTips)
+                      DropdownMenuItem(
+                        value: percent,
+                        child: Text(
+                          '${percent.toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: _kGradientStart,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SettingTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Widget child;
+
+  const _SettingTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: _kCardBackground,
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: _kGradientStart.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: _kGradientStart, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: _kTitleColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: _kLabelColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            child,
+          ],
+        ),
+      ),
     );
   }
 }

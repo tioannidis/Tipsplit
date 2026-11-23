@@ -40,4 +40,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get perPersonLabel => 'Per Person:';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get languageSystem => 'System default';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageGerman => 'German';
+
+  @override
+  String get defaultTipLabel => 'Default Tip';
+
+  @override
+  String get languageSubtitle => 'Choose the app language';
+
+  @override
+  String get defaultTipSubtitle => 'Preset applied when the app starts';
 }

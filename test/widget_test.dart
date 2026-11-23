@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tipsplit/main.dart';
 
 void main() {
   Future<void> pumpApp(WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(const TipsplitApp());
     await tester.pump();
   }
@@ -98,15 +100,14 @@ void main() {
     expect(find.text('\$103.50'), findsOneWidget);
     expect(find.text('\$34.50'), findsOneWidget);
   });
-
-  testWidgets('round up button rounds total to next dollar',
-      (tester) async {
+  testWidgets('round up button rounds total to next dollar', (tester) async {
     await pumpApp(tester);
 
     // With one person, "Total" and "Per Person" show the same amount.
     await enterBill(tester, '42.37');
     expect(find.text('\$48.73'), findsNWidgets(2));
 
+    await tester.ensureVisible(find.text('Round Up to Next Dollar'));
     await tester.tap(find.text('Round Up to Next Dollar'));
     await tester.pump();
 
@@ -128,6 +129,7 @@ void main() {
     await pumpApp(tester);
 
     await enterBill(tester, '42.37');
+    await tester.ensureVisible(find.text('Round Up to Next Dollar'));
     await tester.tap(find.text('Round Up to Next Dollar'));
     await tester.pump();
     expect(find.text('\$49.00'), findsNWidgets(2));
@@ -136,5 +138,50 @@ void main() {
     await tester.pump();
 
     expect(find.text('\$48.74'), findsNWidgets(2));
+  });
+
+  testWidgets('gear icon opens settings page', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('System default'), findsOneWidget);
+    expect(find.text('Default Tip'), findsOneWidget);
+  });
+
+  testWidgets('language can be changed to German in settings', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('System default'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('German').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Einstellungen'), findsOneWidget);
+    expect(find.text('Sprache'), findsOneWidget);
+    expect(find.text('Standard-Trinkgeld'), findsOneWidget);
+  });
+
+  testWidgets('default tip can be changed in settings', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byIcon(Icons.settings));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('15%').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('20%').last);
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await enterBill(tester, '100');
+
+    expect(find.text('\$20.00'), findsOneWidget);
+    expect(find.text('\$120.00'), findsNWidgets(2));
   });
 }

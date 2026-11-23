@@ -43,5 +43,37 @@
   "perPersonLabel": "Pro Person:",
   "@perPersonLabel": {
     "description": "Label for the calculated amount per person result"
+  },
+  "settingsTitle": "Einstellungen",
+  "@settingsTitle": {
+    "description": "Title of the settings page"
+  },
+  "languageLabel": "Sprache",
+  "@languageLabel": {
+    "description": "Label for the language setting"
+  },
+  "languageSystem": "Systemvorgabe",
+  "@languageSystem": {
+    "description": "Language option that follows the device system language"
+  },
+  "languageEnglish": "Englisch",
+  "@languageEnglish": {
+    "description": "English language option"
+  },
+  "languageGerman": "Deutsch",
+  "@languageGerman": {
+    "description": "German language option"
+  },
+  "defaultTipLabel": "Standard-Trinkgeld",
+  "@defaultTipLabel": {
+    "description": "Label for the default tip percentage setting"
+  },
+  "languageSubtitle": "Wähle die App-Sprache",
+  "@languageSubtitle": {
+    "description": "Subtitle below the language setting label"
+  },
+  "defaultTipSubtitle": "Voreinstellung beim Start der App",
+  "@defaultTipSubtitle": {
+    "description": "Subtitle below the default tip setting label"
   }
 }

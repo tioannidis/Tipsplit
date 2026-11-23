@@ -35,8 +35,23 @@ flutter test
 flutter build apk --release
 ```
 
-Signing for release builds is configured via standard Android signing; debug
-signing is used as a placeholder in `android/app/build.gradle`.
+The release APK at `build/app/outputs/flutter-apk/app-release.apk` is left
+unsigned on purpose: F-Droid signs the APK with its own key. It will therefore
+fail to install when sideloaded directly.
+
+For local testing, build a debug APK instead. It is signed with the Android
+debug key and can be installed directly:
+
+```sh
+flutter build apk --debug
+# -> build/app/outputs/flutter-apk/app-debug.apk
+```
+
+## Localization
+
+The app uses Flutter's built-in `gen-l10n` workflow. English strings live in
+`lib/l10n/app_en.arb`; each additional language is a single `app_xx.arb` file
+plus `flutter gen-l10n`. Localization is generated automatically on build.
 
 ## License
 

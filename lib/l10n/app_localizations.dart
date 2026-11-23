@@ -163,6 +163,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Per Person:'**
   String get perPersonLabel;
+
+  /// Title of the settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Label for the language setting
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// Language option that follows the device system language
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get languageSystem;
+
+  /// English language option
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// German language option
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get languageGerman;
+
+  /// Label for the default tip percentage setting
+  ///
+  /// In en, this message translates to:
+  /// **'Default Tip'**
+  String get defaultTipLabel;
+
+  /// Subtitle below the language setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the app language'**
+  String get languageSubtitle;
+
+  /// Subtitle below the default tip setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Preset applied when the app starts'**
+  String get defaultTipSubtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -40,4 +40,28 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get perPersonLabel => 'Pro Person:';
+
+  @override
+  String get settingsTitle => 'Einstellungen';
+
+  @override
+  String get languageLabel => 'Sprache';
+
+  @override
+  String get languageSystem => 'Systemvorgabe';
+
+  @override
+  String get languageEnglish => 'Englisch';
+
+  @override
+  String get languageGerman => 'Deutsch';
+
+  @override
+  String get defaultTipLabel => 'Standard-Trinkgeld';
+
+  @override
+  String get languageSubtitle => 'Wähle die App-Sprache';
+
+  @override
+  String get defaultTipSubtitle => 'Voreinstellung beim Start der App';
 }
